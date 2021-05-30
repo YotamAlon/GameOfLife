@@ -23,6 +23,17 @@ class GameState(object):
         self.mins = [0, 0]
         self.maxs = [0, 0]
 
+    @property
+    def x_range(self):
+        return range(self.mins[0], self.maxs[0] + 1)
+
+    @property
+    def y_range(self):
+        return range(self.mins[1], self.maxs[1] + 1)
+
+    def get_cell(self, x, y):
+        return Cell(x, y, is_alive=self.state.get((x, y), False))
+
     def set_cell_life(self, cell: Cell, is_alive: bool) -> None:
         self.maxs = [max(self.maxs[0], cell.x), max(self.maxs[1], cell.y)]
         self.mins = [min(self.mins[0], cell.x), min(self.mins[1], cell.y)]

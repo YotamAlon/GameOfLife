@@ -6,12 +6,12 @@ from game_logic import GameState, Cell
 class CLIFrontend(BaseFrontend):
     @staticmethod
     def generate_grid(game_state: GameState):
-        return [[Cell(x, y, is_alive=game_state.state.get((x, y), False)) for x in range(game_state.mins[0], game_state.maxs[0] + 1)]
-                for y in range(game_state.mins[1], game_state.maxs[1] + 1)]
+        return [[Cell(x, y, is_alive=game_state.get_cell(x, y).is_alive) for x in game_state.x_range]
+                for y in game_state.y_range]
 
-    def draw(self, grid: GameState):
+    def draw(self, game_state: GameState):
         print('\n'.join(['  '.join(['■' if cell.is_alive else '□' for cell in row])
-                        for row in self.generate_grid(grid)]))
+                         for row in self.generate_grid(game_state)]))
 
     def get_initial_game_state(self) -> GameState:
         initial_state = GameState()
