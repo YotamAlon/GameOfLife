@@ -1,16 +1,15 @@
 import logging
 from typing import Type
-from frontends.debugging_frontend import CLIFrontend
-from mvc_base import BaseFrontend
+from frontends.cli_frontend import CLIFrontend
+from models.MemoryModel import GameState
+from mvc_base import BaseFrontend, BaseModel
 from controller import GameOfLifeController
 
 
-def main(desired_frontend: Type[BaseFrontend], log_level: str):
+def main(desired_frontend: Type[BaseFrontend], desired_model: Type[BaseModel], log_level: str):
     logging.basicConfig(level=getattr(logging, log_level))
     logging.info(f'log level was set to {log_level}')
-    controller = GameOfLifeController()
-    frontend = desired_frontend(controller)
-    controller.set_frontend(frontend)
+    controller = GameOfLifeController(model=desired_model, view=desired_frontend)
     controller.initialize()
 
 
@@ -21,4 +20,4 @@ if __name__ == "__main__":
                             default='WARNING')
     args = arg_parser.parse_args()
 
-    main(CLIFrontend, args.log_level)
+    main(CLIFrontend, GameState, args.log_level)

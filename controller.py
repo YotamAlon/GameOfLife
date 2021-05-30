@@ -1,34 +1,33 @@
 import sys
-from mvc_base import BaseFrontend, BaseController
-from game_logic import GameOfLifeEngine, GameState
+from typing import Type
+from mvc_base import BaseFrontend, BaseController, BaseModel
+from game_logic import GameOfLifeEngine
 
 
 class GameOfLifeController(BaseController):
-    def __init__(self):
-        self.view: BaseFrontend
-        self.engine = GameOfLifeEngine()
-        self.state = GameState()
+    def __init__(self, model: Type[BaseModel], view: Type[BaseFrontend]):
+        self.view = view(self)
+        self.model = model()
+        self.engine = GameOfLifeEngine(model)
 
-    def set_frontend(self, frontend: BaseFrontend) -> None:
-        self.view = frontend
+    def set_state(self, model: BaseModel) -> None:
+        self.model = model
 
-    def set_state(self, state: GameState) -> None:
-        self.state = state
+    def update_cell(self, x: int, y: int, is_alive: bool):
+        cell = self.model.get_cell(x, y)
+        self.model.set_cell_life(cell, is_alive=is_alive)
+        self.view.update(self.model)
 
-    def handle_request(self, request) -> None:
-        if request.type == 'exit':
-            self.close()
-        elif request.type == 'next':
-            game_state = self.engine.calculate_next_game_state(self.state)
-            self.set_state(game_state)
-            self.view.update(game_state)
-        elif request.type == 'update_state':
-            self.set_state(getattr(request, 'state'))
+    def next(self):
+        game_state = self.engine.calculate_next_game_state(self.model)
+        self.set_state(game_state)
+        self.view.update(game_state)
 
     def initialize(self):
-        self.view.initialize()
+        self.model.initialize()
+        self.view.initialize(self.model)
         self.view.show()
 
-    def close(self):
+    def exit(self):
         self.view.close()
         sys.exit()
