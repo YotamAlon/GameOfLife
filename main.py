@@ -1,7 +1,7 @@
 import logging
 from typing import Type
 from frontends.debugging_frontend import CLIFrontend
-from frontend_base import BaseFrontend
+from mvc_base import BaseFrontend
 from controller import GameOfLifeController
 
 
@@ -11,7 +11,7 @@ def main(desired_frontend: Type[BaseFrontend], log_level: str):
     controller = GameOfLifeController()
     frontend = desired_frontend(controller)
     controller.set_frontend(frontend)
-    controller.run()
+    controller.initialize()
 
 
 if __name__ == "__main__":

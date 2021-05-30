@@ -67,23 +67,20 @@ class GameState(object):
 
 
 class GameOfLifeEngine(object):
-    def __init__(self) -> None:
-        self.state = GameState()
-
-    def calculate_next_game_state(self) -> GameState:
+    @staticmethod
+    def calculate_next_game_state(state: GameState) -> GameState:
         new_state = GameState()
-        for cell in self.state.get_living_cells():
-
-            neighbors = list(self.state.get_living_neighbors(cell))
+        for cell in state.get_living_cells():
+            neighbors = list(state.get_living_neighbors(cell))
             logging.debug(f'Cell {cell} has neighbors: {neighbors}')
             n_neighbors = len(neighbors)
             if 2 <= n_neighbors <= 3:
                 logging.info(f'setting {cell} as alive because it has {n_neighbors} neighbors')
                 new_state.set_cell_life(cell, is_alive=True)
 
-        for cell in self.state.get_dead_cells():
+        for cell in state.get_dead_cells():
             logging.debug(f'looking at {cell}')
-            neighbors = list(self.state.get_living_neighbors(cell))
+            neighbors = list(state.get_living_neighbors(cell))
             logging.debug(f'Cell {cell} has neighbors: {neighbors}')
             n_neighbors = len(neighbors)
             if n_neighbors == 3:
@@ -91,6 +88,3 @@ class GameOfLifeEngine(object):
                 new_state.set_cell_life(cell, is_alive=True)
 
         return new_state
-
-    def set_state(self, state: GameState):
-        self.state = state
