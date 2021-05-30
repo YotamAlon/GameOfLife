@@ -1,11 +1,12 @@
+import logging
 from frontend_base import BaseFrontend, Instruction
 from game_logic import Grid, Cell
 
 
 class DebuggingFrontend(BaseFrontend):
     def draw_grid(self, grid: Grid):
-        for row in grid._grid:
-            print('  '.join(['■' if cell.is_alive else '□' for cell in row]))
+        print('\n'.join(['  '.join(['■' if cell.is_alive else '□' for cell in row])
+                        for row in grid.generate_grid()]))
 
     def get_initial_game_state(self) -> Grid:
         grid = Grid()
@@ -19,6 +20,7 @@ class DebuggingFrontend(BaseFrontend):
                     x, y = next_input.replace(' ', '').split(',')
                     cell = Cell(int(x), int(y), is_alive=True)
                     grid.set_cell_life(cell, is_alive=True)
+                    logging.info(str(list(grid.get_living_cells())))
                 except:
                     print('You have entered an illegal input, please try again:')
             else:

@@ -1,4 +1,4 @@
-from logging import getLogger
+import logging
 
 
 class Cell(object):
@@ -18,18 +18,27 @@ class Cell(object):
 
 
 class Grid(object):
-    def __init__(self, size: int = 10) -> None:
-        self.size = size
-        self._grid = [[Cell(x, y) for x in range(self.size)] for y in range(self.size)]
+    def __init__(self) -> None:
+        self.state = {}
+        self.mins = [0, 0]
+        self.maxs = [0, 0]
+
+    def generate_grid(self):
+        return [[Cell(x, y, is_alive=self.state.get((x, y), False)) for x in range(self.mins[0], self.maxs[0] + 1)]
+                for y in range(self.mins[1], self.maxs[1] + 1)]
 
     def set_cell_life(self, cell: Cell, is_alive: bool) -> None:
-        self._grid[cell.x][cell.y].set_is_alive(is_alive)
+        self.maxs = [max(self.maxs[0], cell.x), max(self.maxs[1], cell.y)]
+        self.mins = [min(self.mins[0], cell.x), min(self.mins[1], cell.y)]
+        logging.debug(f'self.maxs, self.mins: {self.maxs}, {self.mins}')
+        if is_alive:
+            self.state[(cell.x, cell.y)] = True
+        else:
+            del self.state[(cell.x, cell.y)]
 
     def get_living_cells(self):
-        for row in self._grid:
-            for cell in row:
-                if cell.is_alive:
-                    yield cell
+        for x, y in self.state:
+            yield Cell(x, y, is_alive=True)
 
     def get_living_neighbors(self, cell):
         for dx in range(-1, 2):
@@ -38,16 +47,16 @@ class Grid(object):
                     continue
 
                 try:
-                    if self._grid[cell.x + dx][cell.y + dy].is_alive:
-                        yield self._grid[cell.x + dx][cell.y + dy]
+                    if self.state.get((cell.x + dx, cell.y + dy), False):
+                        yield Cell(cell.x + dx, cell.y + dy, is_alive=True)
                 except IndexError:
                     pass
 
     def get_dead_cells(self):
-        for row in self._grid:
-            for cell in row:
-                if not cell.is_alive:
-                    yield cell
+        for x in range(self.mins[0], self.maxs[0] + 2):
+            for y in range(self.mins[1], self.maxs[1] + 2):
+                if (x, y) not in self.state:
+                    yield Cell(x, y, is_alive=False)
 
 
 class GameOfLifeEngine(object):
@@ -59,19 +68,19 @@ class GameOfLifeEngine(object):
         for cell in self.grid.get_living_cells():
 
             neighbors = list(self.grid.get_living_neighbors(cell))
-            getLogger().debug(f'Cell {cell} has neighbors: {neighbors}')
+            logging.debug(f'Cell {cell} has neighbors: {neighbors}')
             n_neighbors = len(neighbors)
             if 2 <= n_neighbors <= 3:
-                getLogger().info(f'setting {cell} as alive because it has {n_neighbors} neighbors')
+                logging.info(f'setting {cell} as alive because it has {n_neighbors} neighbors')
                 new_grid.set_cell_life(cell, is_alive=True)
 
         for cell in self.grid.get_dead_cells():
-            getLogger().debug(f'looking at {cell}')
+            logging.debug(f'looking at {cell}')
             neighbors = list(self.grid.get_living_neighbors(cell))
-            getLogger().debug(f'Cell {cell} has neighbors: {neighbors}')
+            logging.debug(f'Cell {cell} has neighbors: {neighbors}')
             n_neighbors = len(neighbors)
             if n_neighbors == 3:
-                getLogger().info(f'setting {cell} as alive because it has {n_neighbors} neighbors')
+                logging.info(f'setting {cell} as alive because it has {n_neighbors} neighbors')
                 new_grid.set_cell_life(cell, is_alive=True)
 
         return new_grid
