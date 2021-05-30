@@ -1,6 +1,6 @@
 import logging
 from typing import Type
-from frontends.cli_frontend import CLIFrontend
+from frontends.CLIFrontend import CLIFrontend
 from models.MemoryModel import GameState
 from mvc_base import BaseFrontend, BaseModel
 from controller import GameOfLifeController
