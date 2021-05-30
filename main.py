@@ -1,6 +1,6 @@
 import logging
 from typing import Type
-from frontends.debugging_frontend import DebuggingFrontend
+from frontends.debugging_frontend import CLIFrontend
 from frontend_base import BaseFrontend
 from controller import GameOfLifeController
 
@@ -21,4 +21,4 @@ if __name__ == "__main__":
                             default='WARNING')
     args = arg_parser.parse_args()
 
-    main(DebuggingFrontend, args.log_level)
+    main(CLIFrontend, args.log_level)

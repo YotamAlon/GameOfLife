@@ -17,15 +17,11 @@ class Cell(object):
         self.is_alive = is_alive
 
 
-class Grid(object):
+class GameState(object):
     def __init__(self) -> None:
         self.state = {}
         self.mins = [0, 0]
         self.maxs = [0, 0]
-
-    def generate_grid(self):
-        return [[Cell(x, y, is_alive=self.state.get((x, y), False)) for x in range(self.mins[0], self.maxs[0] + 1)]
-                for y in range(self.mins[1], self.maxs[1] + 1)]
 
     def set_cell_life(self, cell: Cell, is_alive: bool) -> None:
         self.maxs = [max(self.maxs[0], cell.x), max(self.maxs[1], cell.y)]
@@ -61,29 +57,29 @@ class Grid(object):
 
 class GameOfLifeEngine(object):
     def __init__(self) -> None:
-        self.grid = Grid()
+        self.state = GameState()
 
-    def calculate_next_game_state(self) -> Grid:
-        new_grid = Grid()
-        for cell in self.grid.get_living_cells():
+    def calculate_next_game_state(self) -> GameState:
+        new_state = GameState()
+        for cell in self.state.get_living_cells():
 
-            neighbors = list(self.grid.get_living_neighbors(cell))
+            neighbors = list(self.state.get_living_neighbors(cell))
             logging.debug(f'Cell {cell} has neighbors: {neighbors}')
             n_neighbors = len(neighbors)
             if 2 <= n_neighbors <= 3:
                 logging.info(f'setting {cell} as alive because it has {n_neighbors} neighbors')
-                new_grid.set_cell_life(cell, is_alive=True)
+                new_state.set_cell_life(cell, is_alive=True)
 
-        for cell in self.grid.get_dead_cells():
+        for cell in self.state.get_dead_cells():
             logging.debug(f'looking at {cell}')
-            neighbors = list(self.grid.get_living_neighbors(cell))
+            neighbors = list(self.state.get_living_neighbors(cell))
             logging.debug(f'Cell {cell} has neighbors: {neighbors}')
             n_neighbors = len(neighbors)
             if n_neighbors == 3:
                 logging.info(f'setting {cell} as alive because it has {n_neighbors} neighbors')
-                new_grid.set_cell_life(cell, is_alive=True)
+                new_state.set_cell_life(cell, is_alive=True)
 
-        return new_grid
+        return new_state
 
-    def set_state(self, grid: Grid):
-        self.grid = grid
+    def set_state(self, state: GameState):
+        self.state = state

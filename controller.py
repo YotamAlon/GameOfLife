@@ -11,15 +11,15 @@ class GameOfLifeController(object):
         self.view = frontend
 
     def run(self):
-        grid = self.view.get_initial_game_state()
-        self.engine.set_state(grid)
+        initial_state = self.view.get_initial_game_state()
+        self.engine.set_state(initial_state)
 
         while True:
-            self.view.draw_grid(self.engine.grid)
+            self.view.draw(self.engine.state)
 
             instruction = self.view.get_next_instruction()
             if instruction.type == 'exit':
                 break
             elif instruction.type == 'next':
-                grid = self.engine.calculate_next_game_state()
-                self.engine.set_state(grid)
+                game_state = self.engine.calculate_next_game_state()
+                self.engine.set_state(game_state)

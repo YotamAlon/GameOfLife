@@ -1,4 +1,5 @@
-from game_logic import Grid
+from typing import List
+from game_logic import GameState, Cell
 
 
 class Instruction(object):
@@ -10,10 +11,10 @@ class BaseFrontend(object):
     def __init__(self, controller=None):
         self.controller = controller
 
-    def draw_grid(self, living_cells):
+    def draw(self, living_cells: List[Cell]) -> None:
         raise NotImplementedError()
 
-    def get_initial_game_state(self) -> Grid:
+    def get_initial_game_state(self) -> GameState:
         raise NotImplementedError()
 
     def get_next_instruction(self) -> Instruction:
