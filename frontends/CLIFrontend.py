@@ -1,4 +1,5 @@
 import logging
+from tabulate import tabulate
 from mvc_base import BaseFrontend, BaseModel
 
 
@@ -12,8 +13,10 @@ class CLIFrontend(BaseFrontend):
         return [[game_state.get_cell(x, y) for x in game_state.x_range] for y in game_state.y_range]
 
     def draw(self):
-        print('\n'.join(['  '.join(['■' if cell.is_alive else '□' for cell in row])
-                         for row in self.generate_grid(self.view_state)]))
+        grid = self.generate_grid(self.view_state)
+        print(tabulate([[f'{y}'] + ['■' if cell.is_alive else '□' for cell in grid[i]]
+                        for i, y in enumerate(self.view_state.y_range)],
+                       headers=[' '] + [f'{x}' for x in self.view_state.x_range], tablefmt='plain'))
 
     def update(self, state: BaseModel):
         self.view_state = state

@@ -68,7 +68,7 @@ class GameState(BaseModel):
                     pass
 
     def get_dead_cells(self):
-        for x in range(self.mins[0], self.maxs[0] + 2):
-            for y in range(self.mins[1], self.maxs[1] + 2):
+        for x in range(self.mins[0] - 1, self.maxs[0] + 2):
+            for y in range(self.mins[1] - 1, self.maxs[1] + 2):
                 if (x, y) not in self.state:
                     yield Cell(x, y, is_alive=False)
