@@ -1,7 +1,8 @@
 import logging
 from typing import Type
 from frontends.CLIFrontend import CLIFrontend
-from models.MemoryModel import GameState
+from models.MemoryModel import MemoryState
+from models.SQLiteModel import SQLiteState
 from mvc_base import BaseFrontend, BaseModel
 from controller import GameOfLifeController
 
@@ -20,4 +21,4 @@ if __name__ == "__main__":
                             default='WARNING')
     args = arg_parser.parse_args()
 
-    main(CLIFrontend, GameState, args.log_level)
+    main(CLIFrontend, SQLiteState, args.log_level)

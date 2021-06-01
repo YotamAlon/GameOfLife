@@ -22,7 +22,7 @@ class Cell(BaseCell):
         return self._is_alive
 
 
-class GameState(BaseModel):
+class MemoryState(BaseModel):
     def __init__(self) -> None:
         self.state = {}
         self.mins = [0, 0]
