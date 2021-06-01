@@ -56,14 +56,14 @@ class SQLiteState(BaseModel):
         return range(self.get_value(Cell.Y, fn.MIN, 0) - 1, self.get_value(Cell.Y, fn.MAX, 0) + 2)
 
     def get_cell(self, x: int, y: int) -> BaseCell:
-        try:
-            return Cell.get(X=x, Y=y, state_id=id(self))
-        except DoesNotExist:
-            return Cell(x, y, is_alive=False)
+        cell = Cell.get_or_none(X=x, Y=y, state_id=id(self))
+        if cell is None:
+            cell = Cell(x, y, is_alive=False)
+        return cell
 
     def set_cell_life(self, cell: BaseCell, is_alive: bool) -> None:
-        if is_alive and Cell.get(X=cell.x, Y=cell.y, state_id=id(self)):
-            Cell.get_or_create(X=cell.x, Y=cell.y, state_id=id(self)).execute()
+        if is_alive:
+            Cell.get_or_create(X=cell.x, Y=cell.y, state_id=id(self))
         else:
             Cell.delete().where(X=cell.x, Y=cell.y, state_id=id(self)).execute()
 
