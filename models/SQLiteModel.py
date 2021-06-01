@@ -5,7 +5,7 @@ from mvc_base import BaseCell, BaseModel
 db = SqliteDatabase(':memory:')
 
 
-class Cell(Model, BaseCell):
+class Cell(BaseCell, Model):
     X = IntegerField()
     Y = IntegerField()
     state_id = IntegerField()
@@ -17,11 +17,14 @@ class Cell(Model, BaseCell):
         if (len(args) == 3 and isinstance(args[0], int) and isinstance(args[1], int) and isinstance(args[2], bool)) \
                 or (len(args) == 2 and isinstance(args[0], int) and isinstance(args[1], int)
                     and isinstance(kwargs.get('is_alive'), bool)):
-            super().__init__(X=args[0], Y=args[1])
+            Model.__init__(self, X=args[0], Y=args[1])
             if (len(args) == 3 and args[2]) or kwargs.get('is_alive'):
                 self.save()
         else:
-            super().__init__(*args, **kwargs)
+            Model.__init__(self, *args, **kwargs)
+
+    def __repr__(self):
+        return f'Cell: {self.id}, ({self.x}, {self.y})'
 
     @property
     def x(self) -> int:
@@ -46,11 +49,11 @@ class SQLiteState(BaseModel):
 
     @property
     def x_range(self) -> Iterable[int]:
-        return range(self.get_value(Cell.X, fn.MIN, 0), self.get_value(Cell.X, fn.MAX, 0) + 1)
+        return range(self.get_value(Cell.X, fn.MIN, 0) - 1, self.get_value(Cell.X, fn.MAX, 0) + 2)
 
     @property
     def y_range(self) -> Iterable[int]:
-        return range(self.get_value(Cell.Y, fn.MIN, 0), self.get_value(Cell.Y, fn.MAX, 0) + 1)
+        return range(self.get_value(Cell.Y, fn.MIN, 0) - 1, self.get_value(Cell.Y, fn.MAX, 0) + 2)
 
     def get_cell(self, x: int, y: int) -> BaseCell:
         try:
@@ -59,8 +62,8 @@ class SQLiteState(BaseModel):
             return Cell(x, y, is_alive=False)
 
     def set_cell_life(self, cell: BaseCell, is_alive: bool) -> None:
-        if is_alive:
-            Cell.replace(X=cell.x, Y=cell.y, state_id=id(self)).execute()
+        if is_alive and Cell.get(X=cell.x, Y=cell.y, state_id=id(self)):
+            Cell.get_or_create(X=cell.x, Y=cell.y, state_id=id(self)).execute()
         else:
             Cell.delete().where(X=cell.x, Y=cell.y, state_id=id(self)).execute()
 
@@ -69,7 +72,7 @@ class SQLiteState(BaseModel):
 
     def get_living_neighbors(self, cell) -> Iterable[BaseCell]:
         return Cell.select().where(Cell.X.between(cell.x - 1, cell.x + 1), Cell.Y.between(cell.y - 1, cell.y + 1),
-                                   Cell.X != cell.x, Cell.Y != cell.y, Cell.state_id == id(self))
+                                   Cell.id != cell.id, Cell.state_id == id(self))
 
     def get_dead_cells(self) -> Iterable[BaseCell]:
         existing_x_y_pairs = {(cell.X, cell.Y) for cell in Cell.select(Cell.X, Cell.Y).where(Cell.state_id == id(self))}

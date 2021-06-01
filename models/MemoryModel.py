@@ -33,11 +33,11 @@ class MemoryState(BaseModel):
 
     @property
     def x_range(self):
-        return range(self.mins[0], self.maxs[0] + 1)
+        return range(self.mins[0] - 1, self.maxs[0] + 2)
 
     @property
     def y_range(self):
-        return range(self.mins[1], self.maxs[1] + 1)
+        return range(self.mins[1] - 1, self.maxs[1] + 2)
 
     def get_cell(self, x, y):
         return Cell(x, y, is_alive=self.state.get((x, y), False))
@@ -68,7 +68,7 @@ class MemoryState(BaseModel):
                     pass
 
     def get_dead_cells(self):
-        for x in range(self.mins[0] - 1, self.maxs[0] + 2):
-            for y in range(self.mins[1] - 1, self.maxs[1] + 2):
+        for x in self.x_range:
+            for y in self.y_range:
                 if (x, y) not in self.state:
                     yield Cell(x, y, is_alive=False)
