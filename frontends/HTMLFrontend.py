@@ -1,6 +1,6 @@
 import os
 import signal
-from flask import Flask, redirect, url_for, request
+from flask import Flask, redirect, url_for
 from tabulate import tabulate
 from mvc_base import BaseFrontend, BaseModel
 
@@ -9,30 +9,31 @@ class HTMLFrontend(BaseFrontend):
     def initialize(self, initial_state: BaseModel) -> None:
         self.view_state = initial_state
         self.app = Flask(__name__)
+        url_func_map = {'/': self.index, '/set/<string:coordinates>': self.set_, '/next': self.next_,
+                        '/exit': self.close}
 
-        @self.app.route('/')
-        def index():
-            grid = self.generate_grid(self.view_state)
-            return tabulate([[f'{y}'] + [self.turn_on_button(cell) for cell in grid[i]]
-                             for i, y in enumerate(self.view_state.y_range)],
-                            headers=[' '] + [f'{x}' for x in self.view_state.x_range], tablefmt='unsafehtml')\
-                + self.bottom_buttons()
+        for url, func in url_func_map.items():
+            self.app.route(url)(func)
 
-        @self.app.route('/set/<string:coordinates>')
-        def set_(coordinates: str):
-            x, y = coordinates.split(',')
-            self.controller.update_cell(int(x), int(y), is_alive=True)
-            return redirect(url_for('index'))
+    def index(self):
+        grid = self.generate_grid(self.view_state)
+        return tabulate([[f'{y}'] + [self.turn_on_button(cell) for cell in grid[i]]
+                         for i, y in enumerate(self.view_state.y_range)],
+                        headers=[' '] + [f'{x}' for x in self.view_state.x_range], tablefmt='unsafehtml') \
+               + self.bottom_buttons()
 
-        @self.app.route('/next')
-        def next_():
-            self.controller.next()
-            return redirect(url_for('index'))
+    def set_(self, coordinates: str):
+        x, y = coordinates.split(',')
+        self.controller.update_cell(int(x), int(y), is_alive=True)
+        return redirect(url_for('index'))
 
-        @self.app.route('/exit')
-        def close():
-            self.controller.exit()
-            return redirect(url_for('index'))
+    def next_(self):
+        self.controller.next()
+        return redirect(url_for('index'))
+
+    def close(self):
+        self.controller.exit()
+        return redirect(url_for('index'))
 
     @staticmethod
     def generate_grid(game_state: BaseModel):
