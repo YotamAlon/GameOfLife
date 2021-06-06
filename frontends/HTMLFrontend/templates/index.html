@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Conway's Game of Life - HTMLFrontend</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
+</head>
+<body>
+<div class="navbar navbar-expand navbar-light bg-light bg-light">
+    <ul class="navbar-nav">
+        <li class="nav-item">
+            <a class="nav-link" href="/next">Next</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/exit">Close</a>
+        </li>
+    </ul>
+</div>
+<div class="d-flex justify-content-center">
+<div class="text-center">
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th></th>
+            {% for x in x_range %}
+                <th>{{ x }}</th>
+            {% endfor %}
+        </tr>
+        </thead>
+        <tbody>
+        {% for row in grid %}
+            <tr>
+                {% for cell in row %}
+                    {% if loop.index == 1 %}
+                        <td><span class="btn pt-0 pb-0 fw-bold" style="cursor: auto;">{{ cell.y }}</span></td>
+                    {% endif %}
+                    <td class="{% if cell.is_alive %}bg-dark{% else %}bg-light{% endif %}" style="cursor: pointer"><a class="btn pt-0 pb-0" href="/set/{{ cell.x }},{{ cell.y }}"><div> </div> </a></td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+</div>
+<script type="application/javascript">
+    let tds = document.querySelectorAll('td');
+    tds.forEach((td) => {td.addEventListener('click', () => {td.querySelector('a').click()})})
+</script>
+</body>
+</html>
