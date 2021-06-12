@@ -16,7 +16,7 @@ class FlaskBackend(BaseFrontend):
 
     def initialize(self, initial_state: BaseModel) -> None:
         self.view_state = initial_state
-        self.app = Flask(__name__)
+        self.app = Flask(self.__module__)
         for url, func in self.urls.items():
             self.app.route(url)(func)
 
