@@ -2,7 +2,7 @@ from frontends.base.FlaskBackend import FlaskBackend
 from mvc_base import BaseModel
 
 
-class HTMLFrontend(FlaskBackend):
+class BootstrapFrontend(FlaskBackend):
     @property
     def html_template(self):
         return 'index.html'

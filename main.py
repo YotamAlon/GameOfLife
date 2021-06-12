@@ -1,14 +1,14 @@
 import logging
 from typing import Type
 from frontends.CLIFrontend import CLIFrontend
-from frontends.HTMLFrontend import HTMLFrontend
+from frontends.BootstrapFrontend import BootstrapFrontend
 from models.MemoryModel import MemoryState
 from models.SQLiteModel import SQLiteState
 from mvc_base import BaseFrontend, BaseModel
 from controller import GameOfLifeController
 
 models = {'Memory': MemoryState, 'SQLite': SQLiteState}
-views = {'CLI': CLIFrontend, 'HTML': HTMLFrontend}
+views = {'CLI': CLIFrontend, 'Bootstrap': BootstrapFrontend}
 
 
 def main(desired_frontend: Type[BaseFrontend], desired_model: Type[BaseModel], log_level: str):
