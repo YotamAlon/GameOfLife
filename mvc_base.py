@@ -68,9 +68,10 @@ class BaseController(object):
 
 
 class BaseFrontend(object):
+    view_state: BaseModel
+
     def __init__(self, controller: BaseController):
         self.controller = controller
-        self.view_state: BaseModel
 
     def show(self) -> None:
         """The main function of the view"""

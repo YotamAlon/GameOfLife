@@ -1,34 +1,31 @@
 import os
 import signal
 from flask import Flask, redirect, url_for, render_template
-from tabulate import tabulate
 from mvc_base import BaseFrontend, BaseModel
 
 
-class HTMLFrontend(BaseFrontend):
+class FlaskBackend(BaseFrontend):
+    @property
+    def urls(self):
+        return {'/': self.index, '/set/<string:coordinates>': self.set_, '/next': self.next_,
+                '/exit': self.exit}
+
+    @property
+    def html_template(self):
+        raise NotImplementedError()
+
     def initialize(self, initial_state: BaseModel) -> None:
         self.view_state = initial_state
         self.app = Flask(__name__)
         for url, func in self.urls.items():
             self.app.route(url)(func)
 
-    @property
-    def html_template(self):
-        return 'index.html'
-
-    @property
-    def urls(self):
-        return {'/': self.index, '/set/<string:coordinates>': self.set_, '/next': self.next_,
-                '/exit': self.exit}
+    def get_index_data(self):
+        raise NotImplementedError()
 
     def index(self):
         data = self.get_index_data()
         return render_template(self.html_template, **data)
-
-    def get_index_data(self):
-        grid = self.generate_grid(self.view_state)
-        data = {'grid': grid, 'x_range': self.view_state.x_range, 'y_range': self.view_state.y_range}
-        return data
 
     def set_(self, coordinates: str):
         x, y = coordinates.split(',')
@@ -43,10 +40,6 @@ class HTMLFrontend(BaseFrontend):
         self.controller.exit()
         return redirect(url_for('index'))
 
-    @staticmethod
-    def generate_grid(game_state: BaseModel):
-        return [[game_state.get_cell(x, y) for x in game_state.x_range] for y in game_state.y_range]
-
     def update(self, state: BaseModel) -> None:
         self.view_state = state
 
@@ -55,3 +48,18 @@ class HTMLFrontend(BaseFrontend):
 
     def close(self) -> None:
         os.kill(os.getpid(), signal.SIGINT)
+
+
+class HTMLFrontend(FlaskBackend):
+    @property
+    def html_template(self):
+        return 'index.html'
+
+    def get_index_data(self):
+        grid = self.generate_grid(self.view_state)
+        data = {'grid': grid, 'x_range': self.view_state.x_range, 'y_range': self.view_state.y_range}
+        return data
+
+    @staticmethod
+    def generate_grid(game_state: BaseModel):
+        return [[game_state.get_cell(x, y) for x in game_state.x_range] for y in game_state.y_range]
